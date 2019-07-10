@@ -1,0 +1,32 @@
+{
+  "name": "phaser-ce-clock",
+  "version": "1.0.0",
+  "description": "Phaser CE device information dump.",
+  "scripts": {
+    "start": "parcel serve src/index.html --out-dir dev/",
+    "build": "parcel build src/index.html --out-dir build/ --public-url ./"
+  },
+  "keywords": [
+    "phaser",
+    "phaser-ce",
+    "phaser2",
+    "parceljs",
+    "typescript",
+    "babel"
+  ],
+  "author": "Cerlancism",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/core": "^7.5.4",
+    "@babel/plugin-transform-runtime": "^7.5.0",
+    "@babel/preset-env": "^7.5.4",
+    "@types/parcel-env": "^0.0",
+    "cssnano": "^4.1.10",
+    "typescript": "^3.5.3"
+  },
+  "dependencies": {
+    "@babel/polyfill": "^7.4.4",
+    "@babel/runtime": "^7.5.4",
+    "phaser-ce": "^2.13.2"
+  }
+}
