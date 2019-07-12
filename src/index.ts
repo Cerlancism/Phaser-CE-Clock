@@ -22,11 +22,10 @@ async function startGameAsync()
         Phaser.Device.whenReady((device: Phaser.Device) =>
         {
             console.log("Device Ready")
-            const isOffline = location.protocol === "file:"
 
             const config: Phaser.IGameConfig =
             {
-                renderer: Phaser.AUTO,
+                renderer: Phaser.CANVAS,
                 parent: 'content',
                 width: window.innerWidth,
                 height: window.innerHeight,

@@ -109,8 +109,8 @@ export class Boot extends Phaser.State
 
         this.timeStamp = this.createClockComponent(Phaser.Text, 0, 0)
         this.timeStamp.anchor.set(0.5)
-        this.timeStamp.fontSize = 64
-        this.timeStamp.y = 400
+        this.timeStamp.fontSize = 88
+        this.timeStamp.y = 425
 
         const clockDot = this.createClockComponent(Phaser.Sprite, 0, 0, this.circleDotTexture)
         clockDot.anchor.set(0.5)
@@ -120,6 +120,7 @@ export class Boot extends Phaser.State
 
         this.handleScale()
         this.updateClock()
+
         this.time.events.repeat(1000, Infinity, () => this.updateClock())
     }
 
