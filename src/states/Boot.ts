@@ -1,26 +1,16 @@
-function getMinGameWidthOrHeight()
+function getMinGameWidthOrHeight({ width, height }: Phaser.World)
 {
-    const { width, height } = GameInstance.world
-    return Math.min(width, height);
+    return Math.min(width, height)
 }
 
-function hourToAngle(value: number)
+function stepToAngle(stepValue: number, input: number)
 {
-    return overFlowAngle(360 / 12 * (value % 12))
-}
-
-function minuteOrSecondToAngle(value: number)
-{
-    return overFlowAngle(360 / 60 * (value % 60))
+    return overFlowAngle(360 / stepValue * (input % stepValue))
 }
 
 function overFlowAngle(value: number)
 {
-    if (value > 180)
-    {
-        return -180 + (value - 180)
-    }
-    return value
+    return value > 180 ? -180 + (value - 180) : value
 }
 
 const ReferenceLength = 1080
@@ -31,18 +21,18 @@ export class Boot extends Phaser.State
 
     referenceLength: number
 
-    circleTexture: Phaser.RenderTexture;
-    circleDotTexture: Phaser.RenderTexture;
-    hourHandTexture: Phaser.RenderTexture;
-    minuteHandTexture: Phaser.RenderTexture;
-    secondHandTexture: Phaser.RenderTexture;
+    circleTexture: Phaser.RenderTexture
+    circleDotTexture: Phaser.RenderTexture
+    hourHandTexture: Phaser.RenderTexture
+    minuteHandTexture: Phaser.RenderTexture
+    secondHandTexture: Phaser.RenderTexture
 
-    clockBody: Phaser.Sprite;
-    clockObject: Phaser.Group;
-    timeStamp: Phaser.Text;
-    hourHand: Phaser.Sprite;
-    minuteHand: Phaser.Sprite;
-    secondHand: Phaser.Sprite;
+    clockObject: Phaser.Group
+    clockBody: Phaser.Sprite
+    hourHand: Phaser.Sprite
+    minuteHand: Phaser.Sprite
+    secondHand: Phaser.Sprite
+    timeStamp: Phaser.Text
 
     constructor()
     {
@@ -53,7 +43,7 @@ export class Boot extends Phaser.State
     {
         this.game.stage.disableVisibilityChange = true
         this.scale.scaleMode = Phaser.ScaleManager.RESIZE
-        this.referenceLength = getMinGameWidthOrHeight()
+        this.referenceLength = getMinGameWidthOrHeight(this.world)
     }
 
     preload()
@@ -90,8 +80,6 @@ export class Boot extends Phaser.State
 
     create()
     {
-        Boot.onCreate.dispatch()
-
         this.clockObject = this.add.group(this.world, "clock")
 
         this.clockBody = this.createClockComponent(Phaser.Sprite, 0, 0, this.circleTexture)
@@ -109,26 +97,29 @@ export class Boot extends Phaser.State
 
         this.timeStamp = this.createClockComponent(Phaser.Text, 0, 0)
         this.timeStamp.anchor.set(0.5)
-        this.timeStamp.fontSize = 88
+        this.timeStamp.fontSize = 84
         this.timeStamp.y = 425
 
         const clockDot = this.createClockComponent(Phaser.Sprite, 0, 0, this.circleDotTexture)
         clockDot.anchor.set(0.5)
         clockDot.position = this.clockBody.position
 
-        this.secondHand.angle = minuteOrSecondToAngle(new Date().getSeconds())
+        this.secondHand.angle = stepToAngle(60, new Date().getSeconds())
 
         this.handleScale()
         this.updateClock()
 
         this.time.events.repeat(1000, Infinity, () => this.updateClock())
+
+        Boot.onCreate.dispatch()
     }
 
     createClockComponent<T extends PIXI.DisplayObject>(type: new (...args: any) => T, x: number, y: number, key?: string | Phaser.RenderTexture): T
     {
+        const originalType = this.clockObject.classType
         this.clockObject.classType = type
         const output = this.clockObject.create(x, y, key)
-        this.clockObject.classType = Phaser.Sprite
+        this.clockObject.classType = originalType
         return output
     }
 
@@ -142,14 +133,14 @@ export class Boot extends Phaser.State
     {
         const dateTime = new Date()
         this.timeStamp.text = dateTime.toLocaleString('en-GB', { hour12: false })
-        this.hourHand.angle = hourToAngle(dateTime.getHours() + (dateTime.getMinutes() * 60 + dateTime.getSeconds()) / 3600)
-        this.minuteHand.angle = minuteOrSecondToAngle(dateTime.getMinutes() + dateTime.getSeconds() / 60)
-        this.add.tween(this.secondHand).to({ angle: minuteOrSecondToAngle(dateTime.getSeconds()) }, 200, Phaser.Easing.Bounce.Out, true)
+        this.hourHand.angle = stepToAngle(12, dateTime.getHours() + (dateTime.getMinutes() * 60 + dateTime.getSeconds()) / 3600)
+        this.minuteHand.angle = stepToAngle(60, dateTime.getMinutes() + dateTime.getSeconds() / 60)
+        this.add.tween(this.secondHand).to({ angle: stepToAngle(60, dateTime.getSeconds()) }, 200, Phaser.Easing.Bounce.Out, true)
     }
 
     update()
     {
-        const widthHeight = getMinGameWidthOrHeight()
+        const widthHeight = getMinGameWidthOrHeight(this.world)
         if (this.referenceLength !== widthHeight)
         {
             this.referenceLength = widthHeight

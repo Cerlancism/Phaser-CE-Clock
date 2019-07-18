@@ -11,7 +11,7 @@ if (module.hot)
 {
     if (!window.GameInstance)
     {
-        const game = window.GameInstance = await startGameAsync()
+        window.GameInstance = await startGameAsync()
     }
 })()
 
@@ -21,7 +21,7 @@ async function startGameAsync()
     {
         Phaser.Device.whenReady((device: Phaser.Device) =>
         {
-            console.log("Device Ready")
+            console.log("Device Ready", device)
 
             const config: Phaser.IGameConfig =
             {
@@ -35,14 +35,14 @@ async function startGameAsync()
             }
 
             // Walkaround to prevent canvas from appearing as black from top left corner when starting the game.
-            const container = document.querySelector<HTMLDivElement>("#content")
-            container.style.setProperty("visibility", "hidden")
+            const { style: contentStyle } = document.querySelector<HTMLDivElement>("#content")
+            contentStyle.setProperty("visibility", "hidden")
 
             const game = new Phaser.Game(config)
 
             Boot.onCreate.addOnce(() =>
             {
-                container.style.removeProperty("visibility")
+                contentStyle.removeProperty("visibility")
             })
 
             resolve(game)
