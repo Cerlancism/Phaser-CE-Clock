@@ -159,20 +159,20 @@ export class Boot extends Phaser.State
 
     getMarkingTexture(minute: number)
     {
-        if (minute % 5 === 0)
+        if (minute % 5)
         {
-            if (minute % 15)
-            {
-                return this.thickMarkingTexture
-            }
-            else
-            {
-                return this.thinMarkingTexture
-            }
+            return this.shortMarkingTexture
         }
         else
         {
-            return this.shortMarkingTexture
+            if (minute % 15)
+            {
+                return this.thinMarkingTexture
+            }
+            else
+            {
+                return this.thickMarkingTexture
+            }
         }
     }
 
