@@ -3,9 +3,9 @@ function getMinGameWidthOrHeight({ width, height }: Phaser.World)
     return Math.min(width, height)
 }
 
-function stepToAngle(stepValue: number, input: number)
+function stepToAngle(totalSteps: number, input: number)
 {
-    return overFlowAngle(360 / stepValue * (input % stepValue))
+    return overFlowAngle(360 / totalSteps * (input % totalSteps))
 }
 
 function overFlowAngle(value: number)
@@ -26,6 +26,7 @@ export class Boot extends Phaser.State
     hourHandTexture: Phaser.RenderTexture
     minuteHandTexture: Phaser.RenderTexture
     secondHandTexture: Phaser.RenderTexture
+    thickMarkingTexture: Phaser.RenderTexture
 
     clockObject: Phaser.Group
     clockBody: Phaser.Sprite
@@ -33,6 +34,8 @@ export class Boot extends Phaser.State
     minuteHand: Phaser.Sprite
     secondHand: Phaser.Sprite
     timeStamp: Phaser.Text
+    thinMarkingTexture: Phaser.RenderTexture;
+    shortMarkingTexture: Phaser.RenderTexture;
 
     constructor()
     {
@@ -76,6 +79,24 @@ export class Boot extends Phaser.State
             .drawRect(0, 0, 10, 450)
             .endFill()
             .generateTexture()
+
+        this.thickMarkingTexture = new Phaser.Graphics(this.game)
+            .beginFill(0)
+            .drawRect(0, 0, 15, 85)
+            .endFill()
+            .generateTexture()
+
+        this.thinMarkingTexture = new Phaser.Graphics(this.game)
+            .beginFill(0)
+            .drawRect(0, 0, 8, 85)
+            .endFill()
+            .generateTexture()
+
+        this.shortMarkingTexture = new Phaser.Graphics(this.game)
+            .beginFill(0)
+            .drawRect(0, 0, 5, 30)
+            .endFill()
+            .generateTexture()
     }
 
     create()
@@ -85,6 +106,8 @@ export class Boot extends Phaser.State
         this.clockBody = this.createClockComponent(Phaser.Sprite, 0, 0, this.circleTexture)
         this.clockBody.anchor.set(0.5)
         this.clockBody.y -= 100
+
+        this.createClockMarkings()
 
         this.hourHand = this.createClockComponent(Phaser.Sprite, this.clockBody.x, this.clockBody.y, this.hourHandTexture)
         this.hourHand.anchor.set(0.5, 0.8)
@@ -121,6 +144,36 @@ export class Boot extends Phaser.State
         const output = this.clockObject.create(x, y, key)
         this.clockObject.classType = originalType
         return output
+    }
+
+    createClockMarkings()
+    {
+        for (let minute = 0; minute < 60; minute++)
+        {
+            const marking = this.createClockComponent(Phaser.Sprite, 0, 0, this.getMarkingTexture(minute))
+            marking.anchor.set(0.5, 1 / marking.height * 380)
+            marking.position = this.clockBody.position
+            marking.angle = stepToAngle(60, minute)
+        }
+    }
+
+    getMarkingTexture(minute: number)
+    {
+        if (minute % 5 === 0)
+        {
+            if (minute % 15)
+            {
+                return this.thickMarkingTexture
+            }
+            else
+            {
+                return this.thinMarkingTexture
+            }
+        }
+        else
+        {
+            return this.shortMarkingTexture
+        }
     }
 
     handleScale()
