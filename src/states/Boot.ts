@@ -27,6 +27,8 @@ export class Boot extends Phaser.State
     minuteHandTexture: Phaser.RenderTexture
     secondHandTexture: Phaser.RenderTexture
     thickMarkingTexture: Phaser.RenderTexture
+    thinMarkingTexture: Phaser.RenderTexture
+    shortMarkingTexture: Phaser.RenderTexture
 
     clockObject: Phaser.Group
     clockBody: Phaser.Sprite
@@ -34,8 +36,6 @@ export class Boot extends Phaser.State
     minuteHand: Phaser.Sprite
     secondHand: Phaser.Sprite
     timeStamp: Phaser.Text
-    thinMarkingTexture: Phaser.RenderTexture;
-    shortMarkingTexture: Phaser.RenderTexture;
 
     constructor()
     {
