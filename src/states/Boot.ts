@@ -127,12 +127,19 @@ export class Boot extends Phaser.State
         clockDot.anchor.set(0.5)
         clockDot.position = this.clockBody.position
 
+        const currentTime = new Date()
+        const timeToNextSecond = 1000 - currentTime.getMilliseconds()
+
         this.secondHand.angle = stepToAngle(60, new Date().getSeconds())
 
         this.handleScale()
         this.updateClock()
 
-        this.time.events.repeat(1000, Infinity, () => this.updateClock())
+        this.time.events.add(timeToNextSecond, () =>
+        {
+            this.updateClock()
+            this.time.events.repeat(1000, Infinity, () => this.updateClock())
+        })
 
         Boot.onCreate.dispatch()
     }
@@ -184,7 +191,9 @@ export class Boot extends Phaser.State
 
     updateClock()
     {
-        const dateTime = new Date()
+        const now = Date.now()
+        const offset = now % 1000
+        const dateTime = new Date(now + (offset > 500 ? offset : -offset))
         this.timeStamp.text = dateTime.toLocaleString('en-GB', { hour12: false })
         this.hourHand.angle = stepToAngle(12, dateTime.getHours() + (dateTime.getMinutes() * 60 + dateTime.getSeconds()) / 3600)
         this.minuteHand.angle = stepToAngle(60, dateTime.getMinutes() + dateTime.getSeconds() / 60)
