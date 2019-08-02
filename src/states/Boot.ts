@@ -1,6 +1,6 @@
-function getMinGameWidthOrHeight({ width, height }: Phaser.World)
+function getMinGameWidthOrHeight(x: number, y: number)
 {
-    return Math.min(width, height)
+    return Math.min(x, y)
 }
 
 function stepToAngle(totalSteps: number, input: number)
@@ -46,7 +46,7 @@ export class Boot extends Phaser.State
     {
         this.game.stage.disableVisibilityChange = true
         this.scale.scaleMode = Phaser.ScaleManager.RESIZE
-        this.referenceLength = getMinGameWidthOrHeight(this.world)
+        this.referenceLength = getMinGameWidthOrHeight(innerWidth, innerHeight)
     }
 
     preload()
@@ -129,14 +129,18 @@ export class Boot extends Phaser.State
 
         this.secondHand.angle = stepToAngle(60, new Date().getSeconds())
 
+        addEventListener("resize", () => this.handleScale())
+
         this.handleScale()
 
         const ticker = () =>
         {
-            this.updateClock()
+            const dateTime = this.processTime()
+            this.updateClock(dateTime)
 
-            const currentTime = new Date()
-            const timeToNextSecond = 1000 - currentTime.getMilliseconds()
+            const current = new Date()
+
+            const timeToNextSecond = 1000 - current.getMilliseconds()
             this.time.events.add(timeToNextSecond, ticker)
         }
 
@@ -186,30 +190,44 @@ export class Boot extends Phaser.State
 
     handleScale()
     {
-        this.clockObject.scale.set(this.referenceLength / ReferenceLength)
-        this.clockObject.position.set(this.game.world.centerX, this.game.world.centerY)
+        const widthHeight = getMinGameWidthOrHeight(innerWidth, innerHeight)
+        this.referenceLength = widthHeight
+
+        const adjustPositions = () =>
+        {
+            this.clockObject.scale.set(this.referenceLength / ReferenceLength)
+            this.clockObject.position.set(innerWidth / 2, innerHeight / 2)
+        }
+
+        adjustPositions()
+
+        setTimeout(adjustPositions, 1000 / this.game.time.desiredFps)
     }
 
-    updateClock()
+    processTime()
     {
         const now = Date.now()
         const offset = now % 1000
         const dateTime = new Date(now + (offset > 500 ? (-offset + 1000) : -offset))
 
-        this.timeStamp.text = dateTime.toLocaleString('en-GB', { hour12: false })
+        return dateTime
+    }
 
+    updateClock(dateTime: Date)
+    {
+        this.setDigitalClock(dateTime)
+        this.setAnalogClock(dateTime)
+    }
+
+    setAnalogClock(dateTime: Date)
+    {
         this.hourHand.angle = stepToAngle(12, dateTime.getHours() + (dateTime.getMinutes() * 60 + dateTime.getSeconds()) / 3600)
         this.minuteHand.angle = stepToAngle(60, dateTime.getMinutes() + dateTime.getSeconds() / 60)
         this.add.tween(this.secondHand).to({ angle: stepToAngle(60, dateTime.getSeconds()) }, 200, Phaser.Easing.Bounce.Out, true)
     }
 
-    update()
+    setDigitalClock(dateTime: Date)
     {
-        const widthHeight = getMinGameWidthOrHeight(this.world)
-        if (this.referenceLength !== widthHeight)
-        {
-            this.referenceLength = widthHeight
-            this.handleScale()
-        }
+        this.timeStamp.text = dateTime.toLocaleString('en-GB', { hour12: false })
     }
 }
