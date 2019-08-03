@@ -1,6 +1,6 @@
-function getMinGameWidthOrHeight(x: number, y: number)
+function getMinGameWidthOrHeight()
 {
-    return Math.min(x, y)
+    return Math.min(innerWidth, innerHeight)
 }
 
 function stepToAngle(totalSteps: number, input: number)
@@ -46,7 +46,7 @@ export class Boot extends Phaser.State
     {
         this.game.stage.disableVisibilityChange = true
         this.scale.scaleMode = Phaser.ScaleManager.RESIZE
-        this.referenceLength = getMinGameWidthOrHeight(innerWidth, innerHeight)
+        this.referenceLength = getMinGameWidthOrHeight()
     }
 
     preload()
@@ -190,7 +190,7 @@ export class Boot extends Phaser.State
 
     handleScale()
     {
-        const widthHeight = getMinGameWidthOrHeight(innerWidth, innerHeight)
+        const widthHeight = getMinGameWidthOrHeight()
         this.referenceLength = widthHeight
 
         const adjustPositions = () =>
