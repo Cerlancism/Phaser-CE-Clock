@@ -13,6 +13,15 @@ function overFlowAngle(value: number)
     return value > 180 ? -180 + (value - 180) : value
 }
 
+function getSyncedTime()
+{
+    const now = Date.now()
+    const offset = now % 1000
+    const dateTime = new Date(now + (offset > 500 ? (-offset + 1000) : -offset))
+
+    return dateTime
+}
+
 const ReferenceLength = 1080
 
 export class Boot extends Phaser.State
@@ -135,7 +144,7 @@ export class Boot extends Phaser.State
 
         const ticker = () =>
         {
-            const dateTime = this.processTime()
+            const dateTime = getSyncedTime()
             this.updateClock(dateTime)
 
             const current = new Date()
@@ -202,15 +211,6 @@ export class Boot extends Phaser.State
         adjustPositions()
 
         setTimeout(adjustPositions, 1000 / this.game.time.desiredFps)
-    }
-
-    processTime()
-    {
-        const now = Date.now()
-        const offset = now % 1000
-        const dateTime = new Date(now + (offset > 500 ? (-offset + 1000) : -offset))
-
-        return dateTime
     }
 
     updateClock(dateTime: Date)
